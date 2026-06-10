@@ -15,6 +15,7 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
   const [attrKey, setAttrKey] = useState('')
   const [attrValue, setAttrValue] = useState('')
   const [attrs, setAttrs] = useState<Record<string, unknown>>({})
+  const [originalAttrs, setOriginalAttrs] = useState<Record<string, unknown>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isEditing = mode !== 'create'
@@ -26,10 +27,12 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
       setName(concept.name)
       setParentId(concept.parentId || undefined)
       setAttrs(concept.ownAttrs || {})
+      setOriginalAttrs(concept.ownAttrs || {})
     } else {
       setName('')
       setParentId(undefined)
       setAttrs({})
+      setOriginalAttrs({})
     }
     setAttrKey('')
     setAttrValue('')
@@ -62,10 +65,10 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (name.trim()) {
+    if (isAttrsOnly || name.trim()) {
       setIsSubmitting(true)
       try {
-        await onSave({ name: name.trim(), parentId, attrs })
+        await onSave({ name: name.trim() || undefined, parentId, attrs })
       } finally {
         setIsSubmitting(false)
       }
@@ -73,7 +76,13 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
   }
 
   const canAddAttr = attrKey.trim() && attrValue.trim()
-  const canSubmit = isAttrsOnly ? true : name.trim()
+
+  // Check if attrs have been modified
+  const attrsChanged = JSON.stringify(attrs) !== JSON.stringify(originalAttrs)
+
+  // For attrs-only mode: save only when attrs actually changed
+  // For other modes: save when name is filled
+  const canSubmit = isAttrsOnly ? attrsChanged : name.trim()
 
   return (
     <div style={{
