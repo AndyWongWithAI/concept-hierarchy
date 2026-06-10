@@ -13,7 +13,6 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
   const graphRef = useRef<ReturnType<typeof forceGraph>>()
   const selectedIdRef = useRef<string | null>(selectedId)
 
-  // Keep ref in sync with prop
   useEffect(() => {
     selectedIdRef.current = selectedId
   }, [selectedId])
@@ -42,7 +41,7 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
         ctx.fillStyle = isSelected ? '#2563eb' : '#94a3b8'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText(label, nodeObj.x ||0, (nodeObj.y || 0) + 14)
+        ctx.fillText(label, nodeObj.x || 0, (nodeObj.y || 0) + 14)
 
         ctx.beginPath()
         ctx.arc(nodeObj.x || 0, nodeObj.y || 0, 6, 0, 2 * Math.PI)
@@ -53,6 +52,22 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
     return () => {
       graph.pauseAnimation()
     }
+  }, [])
+
+  // Handle container resize
+  useEffect(() => {
+    if (!containerRef.current || !graphRef.current) return
+
+    const ro = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        graphRef.current.width(width)
+        graphRef.current.height(height)
+      }
+    })
+    ro.observe(containerRef.current)
+
+    return () => ro.disconnect()
   }, [])
 
   useEffect(() => {
@@ -73,10 +88,9 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
     graphRef.current.graphData({ nodes, links })
   }, [concepts])
 
-  // Force redraw when selection changes
+  // Highlight selected node
   useEffect(() => {
     if (graphRef.current) {
-      // Trigger a redraw by updating graphData with same data
       graphRef.current.refresh?.()
     }
   }, [selectedId])

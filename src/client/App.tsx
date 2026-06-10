@@ -9,6 +9,7 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingConcept, setEditingConcept] = useState<Concept | null>(null)
+  const [resetKey, setResetKey] = useState(0)
 
   const fetchConcepts = useCallback(async () => {
     const res = await fetch('/api/concepts')
@@ -52,33 +53,53 @@ function App() {
     fetchConcepts()
   }
 
+  const handleHome = () => {
+    setResetKey(k => k + 1)
+    // Clear selection so Home shows all nodes
+    setSelectedId(null)
+  }
+
   const selectedConcept = concepts.find(c => c.id === selectedId)
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <ConceptGraph
+          key={resetKey}
           concepts={concepts}
           selectedId={selectedId}
           onSelect={setSelectedId}
         />
-        <button
-          onClick={handleCreate}
-          style={{
-            position: 'absolute',
-            bottom: 24,
-            right: 24,
-            padding: '12px 24px',
-            background: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: 8,
-            cursor: 'pointer',
-            fontSize: 16
-          }}
-        >
-          + 新建节点
-        </button>
+        <div style={{ position: 'absolute', bottom: 24, right: 24, display: 'flex', gap: 12 }}>
+          <button
+            onClick={handleHome}
+            style={{
+              padding: '12px 24px',
+              background: '#64748b',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 16
+            }}
+          >
+            Home
+          </button>
+          <button
+            onClick={handleCreate}
+            style={{
+              padding: '12px 24px',
+              background: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontSize: 16
+            }}
+          >
+            + 新建节点
+          </button>
+        </div>
       </div>
       <ConceptPanel
         concept={selectedConcept}
