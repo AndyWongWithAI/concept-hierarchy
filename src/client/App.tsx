@@ -3,13 +3,19 @@ import { Concept } from '../../types'
 import ConceptGraph from './components/ConceptGraph'
 import ConceptPanel from './components/ConceptPanel'
 import NodeForm from './components/NodeForm'
+import EntityListModal from './components/EntityListModal'
 
 function App() {
   const [concepts, setConcepts] = useState<Concept[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [showEntityList, setShowEntityList] = useState(false)
   const [editingConcept, setEditingConcept] = useState<Concept | null>(null)
+  const [formMode, setFormMode] = useState<'create' | 'edit-node' | 'edit-attrs'>('create')
   const [resetKey, setResetKey] = useState(0)
+
+  // Entity edit states - stored at App level so they persist when NodeForm overlays
+  const [entityEditStates, setEntityEditStates] = useState<Record<string, { name: string; parentId: string | undefined }>>({})
 
   const fetchConcepts = useCallback(async () => {
     const res = await fetch('/api/concepts')
@@ -21,11 +27,38 @@ function App() {
 
   const handleCreate = () => {
     setEditingConcept(null)
+    setFormMode('create')
     setShowForm(true)
   }
 
-  const handleEdit = (concept: Concept) => {
+  const handleOpenEntityList = () => {
+    // Initialize edit states from current concepts
+    const initial: Record<string, { name: string; parentId: string | undefined }> = {}
+    concepts.forEach(c => {
+      initial[c.id] = { name: c.name, parentId: c.parentId || undefined }
+    })
+    setEntityEditStates(initial)
+    setShowEntityList(true)
+  }
+
+  const handleSaveEntity = async (id: string, data: { name: string; parentId?: string }) => {
+    await fetch(`/api/concepts/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    fetchConcepts()
+  }
+
+  const handleEditAttrs = (concept: Concept) => {
     setEditingConcept(concept)
+    setFormMode('edit-attrs')
+    setShowForm(true)
+  }
+
+  const handleEditNode = (concept: Concept) => {
+    setEditingConcept(concept)
+    setFormMode('edit-node')
     setShowForm(true)
   }
 
@@ -44,7 +77,18 @@ function App() {
       })
     }
     setShowForm(false)
-    fetchConcepts()
+
+    // If entity list is open, don't fetch (to preserve local edits)
+    // Just update the specific concept in App state for graph refresh
+    if (showEntityList && editingConcept) {
+      setConcepts(prev => prev.map(c =>
+        c.id === editingConcept.id
+          ? { ...c, attrs: data.attrs, ownAttrs: data.attrs, updatedAt: new Date().toISOString() }
+          : c
+      ))
+    } else {
+      fetchConcepts()
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -104,7 +148,7 @@ function App() {
       <ConceptPanel
         concept={selectedConcept}
         concepts={concepts}
-        onEdit={handleEdit}
+        onOpenEntityList={handleOpenEntityList}
         onDelete={handleDelete}
       />
       {showForm && (
@@ -113,6 +157,17 @@ function App() {
           concepts={concepts}
           onSave={handleSave}
           onClose={() => setShowForm(false)}
+          mode={formMode}
+        />
+      )}
+      {showEntityList && (
+        <EntityListModal
+          concepts={concepts}
+          selectedId={selectedId}
+          onSave={handleSaveEntity}
+          onEditAttrs={handleEditAttrs}
+          onClose={() => setShowEntityList(false)}
+          initStates={entityEditStates}
         />
       )}
     </div>

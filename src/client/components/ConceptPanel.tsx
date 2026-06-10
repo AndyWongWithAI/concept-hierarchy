@@ -3,11 +3,11 @@ import { Concept } from '../../types'
 interface Props {
   concept: Concept | undefined
   concepts: Concept[]
-  onEdit: (concept: Concept) => void
+  onOpenEntityList: () => void
   onDelete: (id: string) => void
 }
 
-export default function ConceptPanel({ concept, concepts, onEdit, onDelete }: Props) {
+export default function ConceptPanel({ concept, concepts, onOpenEntityList, onDelete }: Props) {
   if (!concept) {
     return (
       <div style={{
@@ -88,7 +88,7 @@ export default function ConceptPanel({ concept, concepts, onEdit, onDelete }: Pr
 
       <div style={{ display: 'flex', gap: 8 }}>
         <button
-          onClick={() => onEdit(concept)}
+          onClick={onOpenEntityList}
           style={{
             flex: 1,
             padding: '8px 16px',
@@ -99,7 +99,7 @@ export default function ConceptPanel({ concept, concepts, onEdit, onDelete }: Pr
             cursor: 'pointer'
           }}
         >
-          编辑
+          编辑实体
         </button>
         <button
           onClick={() => onDelete(concept.id)}
