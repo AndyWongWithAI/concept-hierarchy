@@ -1,0 +1,64 @@
+# 模板使用说明
+
+## 如何使用此模板创建新项目
+
+### 方法 1：手动复制
+
+1. 复制整个 `project-template/` 目录到新位置
+2. 重命名为你的项目名
+3. 按需修改以下文件中的占位符：
+
+```bash
+cp -r ~/project-template ~/projects/my-new-project
+cd ~/projects/my-new-project
+```
+
+### 必须修改的内容
+
+1. `CLAUDE.md`
+   - 项目名称
+   - 项目目标
+   - 技术栈
+   - 代码规范（如需要调整）
+
+2. `README.md`
+   - 项目名称
+   - 项目描述
+   - 安装和运行命令
+
+3. `LICENSE`
+   - 保持 MIT 或替换为其他协议
+
+4. `.github/workflows/ci.yml`
+   - 调整为你的语言/框架的 CI 步骤
+
+### 初始化 Git
+
+```bash
+cd my-new-project
+git init
+git add .
+git commit -m "feat: initial project setup"
+git remote add origin git@github.com:AndyWongWithAI/my-new-project.git
+git push -u origin main
+```
+
+### 在 GitHub 创建仓库
+
+1. 打开 https://github.com/new
+2. 填写仓库名称（与本地目录名一致）
+3. 不要勾选 "Initialize with README"
+4. 点击 Create repository
+5. 按提示推送代码
+
+## 模板文件说明
+
+| 文件 | 说明 |
+|------|------|
+| `CLAUDE.md` | Claude Code 项目配置，包含目标、约束、规范 |
+| `README.md` | 项目入口文档 |
+| `LICENSE` | 开源协议（MIT） |
+| `.gitignore` | Git 忽略文件 |
+| `.claude/settings.json` | Claude Code 项目级设置 |
+| `.github/workflows/ci.yml` | GitHub Actions CI 配置 |
+| `Makefile` | 构建脚本 |
