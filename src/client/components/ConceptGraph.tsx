@@ -11,6 +11,12 @@ interface Props {
 export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const graphRef = useRef<ReturnType<typeof forceGraph>>()
+  const selectedIdRef = useRef<string | null>(selectedId)
+
+  // Keep ref in sync with prop
+  useEffect(() => {
+    selectedIdRef.current = selectedId
+  }, [selectedId])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -21,22 +27,26 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
     graph
       .nodeRelSize(8)
       .linkColor(() => '#cbd5e1')
+      .linkDirectionalArrowLength(6)
+      .linkDirectionalArrowRelPos(1)
       .onNodeClick((node: { id: string }) => {
-        onSelect(node.id === selectedId ? null : node.id)
+        onSelect(node.id === selectedIdRef.current ? null : node.id)
       })
       .nodeCanvasObject((node, ctx) => {
         const nodeObj = node as { id?: string; name?: string; x?: number; y?: number }
         const label = nodeObj.name || ''
         const fontSize = 12
+        const isSelected = nodeObj.id === selectedIdRef.current
+
         ctx.font = `${fontSize}px sans-serif`
-        ctx.fillStyle = nodeObj.id === selectedId ? '#2563eb' : '#374151'
+        ctx.fillStyle = isSelected ? '#2563eb' : '#94a3b8'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText(label, nodeObj.x ||0, (nodeObj.y || 0) + 14)
 
         ctx.beginPath()
         ctx.arc(nodeObj.x || 0, nodeObj.y || 0, 6, 0, 2 * Math.PI)
-        ctx.fillStyle = nodeObj.id === selectedId ? '#2563eb' : '#94a3b8'
+        ctx.fillStyle = isSelected ? '#2563eb' : '#94a3b8'
         ctx.fill()
       })
 
@@ -62,6 +72,14 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
 
     graphRef.current.graphData({ nodes, links })
   }, [concepts])
+
+  // Force redraw when selection changes
+  useEffect(() => {
+    if (graphRef.current) {
+      // Trigger a redraw by updating graphData with same data
+      graphRef.current.refresh?.()
+    }
+  }, [selectedId])
 
   return (
     <div
