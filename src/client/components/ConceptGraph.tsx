@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect } from 'react'
 import forceGraph from 'force-graph'
 import { Concept } from '../../types'
 
@@ -19,11 +19,25 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
     graphRef.current = graph
 
     graph
-      .nodeLabel('name')
       .nodeRelSize(8)
       .linkColor(() => '#cbd5e1')
       .onNodeClick((node: { id: string }) => {
         onSelect(node.id === selectedId ? null : node.id)
+      })
+      .nodeCanvasObject((node, ctx) => {
+        const nodeObj = node as { id?: string; name?: string; x?: number; y?: number }
+        const label = nodeObj.name || ''
+        const fontSize = 12
+        ctx.font = `${fontSize}px sans-serif`
+        ctx.fillStyle = nodeObj.id === selectedId ? '#2563eb' : '#374151'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(label, nodeObj.x ||0, (nodeObj.y || 0) + 14)
+
+        ctx.beginPath()
+        ctx.arc(nodeObj.x || 0, nodeObj.y || 0, 6, 0, 2 * Math.PI)
+        ctx.fillStyle = nodeObj.id === selectedId ? '#2563eb' : '#94a3b8'
+        ctx.fill()
       })
 
     return () => {
@@ -48,11 +62,6 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
 
     graphRef.current.graphData({ nodes, links })
   }, [concepts])
-
-  useEffect(() => {
-    if (!graphRef.current) return
-    graphRef.current.nodeColor(node => (node as { id: string }).id === selectedId ? '#2563eb' : '#94a3b8')
-  }, [selectedId])
 
   return (
     <div

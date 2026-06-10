@@ -3,7 +3,7 @@ export interface Concept {
   name: string
   parentId: string | null
   attrs: Record<string, unknown>
-  inheritedAttrs: Record<string, unknown>
+  inheritedAttrs: Record<string, { value: unknown; from: string }>
   ownAttrs: Record<string, unknown>
   createdAt: string
   updatedAt: string

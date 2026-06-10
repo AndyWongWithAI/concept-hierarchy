@@ -16,12 +16,13 @@ interface ConceptUpdate {
 export async function conceptRoutes(fastify: FastifyInstance) {
   // 获取所有概念（含继承属性计算）
   fastify.get('/api/concepts', async () => {
-    const concepts = await prisma.concept.findMany({
-      include: { parent: true }
-    })
+    const concepts = await prisma.concept.findMany()
+
+    // 构建 ID -> 概念 map
+    const conceptMap = new Map(concepts.map(c => [c.id, c]))
 
     return concepts.map(concept => {
-      const inherited = calculateInheritedAttrs(concept)
+      const inherited = getAncestorAttrs(concept, conceptMap)
       return {
         ...concept,
         attrs: JSON.parse(concept.attrs),
@@ -68,21 +69,29 @@ export async function conceptRoutes(fastify: FastifyInstance) {
   })
 }
 
-function calculateInheritedAttrs(concept: { attrs: string; parent: { attrs: string } | null }) {
+function getAncestorAttrs(
+  concept: { id: string; name: string; attrs: string; parentId: string | null },
+  conceptMap: Map<string, { id: string; name: string; attrs: string; parentId: string | null }>
+) {
   const ownAttrs = JSON.parse(concept.attrs)
-  const inherited: Record<string, unknown> = {}
+  const inherited: Record<string, { value: unknown; from: string }> = {}
 
-  if (concept.parent) {
-    const parentAttrs = JSON.parse(concept.parent.attrs)
-    Object.assign(inherited, parentAttrs)
+  // 遍历所有祖先节点（从父到祖）
+  let currentParentId = concept.parentId
+  while (currentParentId) {
+    const parent = conceptMap.get(currentParentId)
+    if (!parent) break
+    const parentAttrs = JSON.parse(parent.attrs)
+    Object.entries(parentAttrs).forEach(([key, value]) => {
+      if (!inherited[key]) {
+        inherited[key] = { value, from: parent.name }
+      }
+    })
+    currentParentId = parent.parentId
   }
-
-  // 合并：自身属性覆盖继承属性
-  const effectiveAttrs = { ...inherited, ...ownAttrs }
 
   return {
     inherited,
-    own: ownAttrs,
-    effective: effectiveAttrs
+    own: ownAttrs
   }
 }

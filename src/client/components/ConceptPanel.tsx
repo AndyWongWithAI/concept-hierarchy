@@ -51,14 +51,15 @@ export default function ConceptPanel({ concept, concepts, onEdit, onDelete }: Pr
           <div style={{ color: '#94a3b8', fontSize: 14 }}>无</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {Object.entries(concept.inheritedAttrs).map(([key, value]) => (
+            {Object.entries(concept.inheritedAttrs).map(([key, info]) => (
               <div key={key} style={{
-                color: '#94a3b8',
                 fontSize: 14,
                 borderBottom: '1px dashed #cbd5e1',
                 padding: '4px 0'
               }}>
-                {key}: {String(value)}
+                <span style={{ color: '#94a3b8' }}>{key}: </span>
+                <span style={{ color: '#64748b' }}>{String((info as { value: unknown }).value)}</span>
+                <span style={{ color: '#94a3b8', fontSize: 12 }}> (来自 {(info as { from: string }).from})</span>
               </div>
             ))}
           </div>
