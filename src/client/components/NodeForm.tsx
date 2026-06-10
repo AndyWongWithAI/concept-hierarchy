@@ -147,20 +147,20 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
                   ))
                 )}
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 8 }}>
                 <input
                   placeholder="键"
                   value={attrKey}
                   onChange={e => setAttrKey(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), canAddAttr && handleAddAttr())}
-                  style={{ flex: 1, padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                  style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s', width: '100%' }}
                 />
                 <input
                   placeholder="值"
                   value={attrValue}
                   onChange={e => setAttrValue(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), canAddAttr && handleAddAttr())}
-                  style={{ flex: 1, padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                  style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s', width: '100%' }}
                 />
                 <button
                   type="button"
@@ -180,18 +180,18 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <button
               type="submit"
               disabled={!canSubmit || isSubmitting}
               style={{
-                flex: 1,
                 padding: '10px 16px',
                 background: canSubmit && !isSubmitting ? '#2563eb' : '#93c5fd',
                 color: 'white',
                 border: 'none',
                 borderRadius: 6,
-                cursor: canSubmit && !isSubmitting ? 'pointer' : 'not-allowed'
+                cursor: canSubmit && !isSubmitting ? 'pointer' : 'not-allowed',
+                width: '100%'
               }}
             >
               {isSubmitting ? '保存中...' : '保存'}
@@ -200,12 +200,12 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
               type="button"
               onClick={onClose}
               style={{
-                flex: 1,
                 padding: '10px 16px',
                 background: 'white',
                 border: '1px solid #e2e8f0',
                 borderRadius: 6,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                width: '100%'
               }}
             >
               取消
