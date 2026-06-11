@@ -1,12 +1,16 @@
 import { useRef, useEffect } from 'react'
 import forceGraph from 'force-graph'
-import { Concept } from '../../types'
+import { Concept } from '../../../types'
 
 interface Props {
   concepts: Concept[]
   selectedId: string | null
   onSelect: (id: string | null) => void
 }
+
+const COLOR_NODE = 'rgba(255, 255, 255, 0.45)'
+const COLOR_NODE_SELECTED = '#60a5fa'
+const COLOR_LINK = 'rgba(255, 255, 255, 0.12)'
 
 export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -24,8 +28,9 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
     graphRef.current = graph
 
     graph
+      .backgroundColor('#0a0a0a')
       .nodeRelSize(8)
-      .linkColor(() => '#cbd5e1')
+      .linkColor(() => COLOR_LINK)
       .linkDirectionalArrowLength(6)
       .linkDirectionalArrowRelPos(1)
       .onNodeClick((node: { id: string }) => {
@@ -36,16 +41,17 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
         const label = nodeObj.name || ''
         const fontSize = 12
         const isSelected = nodeObj.id === selectedIdRef.current
+        const color = isSelected ? COLOR_NODE_SELECTED : COLOR_NODE
 
-        ctx.font = `${fontSize}px sans-serif`
-        ctx.fillStyle = isSelected ? '#2563eb' : '#94a3b8'
+        ctx.font = `${fontSize}px Inter, ui-sans-serif, system-ui, sans-serif`
+        ctx.fillStyle = color
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText(label, nodeObj.x || 0, (nodeObj.y || 0) + 14)
+        ctx.fillText(label, nodeObj.x || 0, (nodeObj.y || 0) + 16)
 
         ctx.beginPath()
         ctx.arc(nodeObj.x || 0, nodeObj.y || 0, 6, 0, 2 * Math.PI)
-        ctx.fillStyle = isSelected ? '#2563eb' : '#94a3b8'
+        ctx.fillStyle = color
         ctx.fill()
       })
 
@@ -98,7 +104,7 @@ export default function ConceptGraph({ concepts, selectedId, onSelect }: Props) 
   return (
     <div
       ref={containerRef}
-      style={{ width: '100%', height: '100%', background: '#f8fafc' }}
+      className="w-full h-full"
     />
   )
 }

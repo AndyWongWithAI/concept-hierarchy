@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+// 直接指向源文件，绕过 design-system/components 的 re-export 链
+// （那条链会拉进 next/link，dev 预打包时 process is not defined）
+import { BackgroundGlow } from '../../../design-system/src/components/BackgroundGlow'
 import { Concept } from '../../types'
 import ConceptGraph from './components/ConceptGraph'
 import ConceptPanel from './components/ConceptPanel'
@@ -106,51 +109,40 @@ function App() {
   const selectedConcept = concepts.find(c => c.id === selectedId)
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <ConceptGraph
-          key={resetKey}
-          concepts={concepts}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-        />
-        <div style={{ position: 'absolute', bottom: 24, right: 24, display: 'flex', gap: 12 }}>
-          <button
-            onClick={handleHome}
-            style={{
-              padding: '12px 24px',
-              background: '#64748b',
-              color: 'white',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-              fontSize: 16
-            }}
-          >
-            Home
-          </button>
-          <button
-            onClick={handleCreate}
-            style={{
-              padding: '12px 24px',
-              background: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-              fontSize: 16
-            }}
-          >
-            + 新建节点
-          </button>
+    <div className="relative flex h-screen overflow-hidden bg-bg text-white">
+      <BackgroundGlow variant="minimal" />
+
+      <div className="relative z-10 flex flex-1 overflow-hidden">
+        <div className="relative flex-1">
+          <ConceptGraph
+            key={resetKey}
+            concepts={concepts}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+          />
+          <div className="absolute bottom-6 right-6 flex gap-3">
+            <button
+              onClick={handleHome}
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-medium border border-white/20 text-white/60 hover:bg-white/5 hover:border-white/30 hover:text-white transition-all duration-300"
+            >
+              Home
+            </button>
+            <button
+              onClick={handleCreate}
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-medium bg-white text-black hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 hover:scale-105 transition-all duration-300"
+            >
+              + 新建节点
+            </button>
+          </div>
         </div>
+        <ConceptPanel
+          concept={selectedConcept}
+          concepts={concepts}
+          onOpenEntityList={handleOpenEntityList}
+          onDelete={handleDelete}
+        />
       </div>
-      <ConceptPanel
-        concept={selectedConcept}
-        concepts={concepts}
-        onOpenEntityList={handleOpenEntityList}
-        onDelete={handleDelete}
-      />
+
       {showForm && (
         <NodeForm
           concept={editingConcept}

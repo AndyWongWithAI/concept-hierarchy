@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Concept } from '../../types'
+import { Concept } from '../../../types'
 
 interface Props {
   concepts: Concept[]
@@ -18,7 +18,10 @@ interface EditState {
   }
 }
 
-export default function EntityListModal({ concepts, selectedId, onSave, onEditAttrs, onClose, initStates }: Props & { initStates?: EditState }) {
+const inputClass =
+  'px-3 py-1.5 bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white outline-none transition-colors duration-200 focus:border-white/30 hover:border-white/[0.15]'
+
+export default function EntityListModal({ concepts, selectedId, onSave, onEditAttrs, onClose, initStates }: Props) {
   // Initialize from initStates if provided, otherwise from concepts (only on mount)
   const [editStates, setEditStates] = useState<EditState>(() => {
     if (initStates) return initStates
@@ -86,37 +89,21 @@ export default function EntityListModal({ concepts, selectedId, onSave, onEditAt
   const hasDirty = Object.values(editStates).some(s => s.isDirty)
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 16,
-      boxSizing: 'border-box',
-      zIndex: 1000
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: 12,
-        padding: 24,
-        width: '100%',
-        maxWidth: 700,
-        maxHeight: '80vh',
-        overflow: 'auto',
-        boxSizing: 'border-box'
-      }}>
-        <h3 style={{ marginBottom: 16 }}>编辑实体</h3>
+    <div
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-3xl max-h-[80vh] overflow-auto rounded-2xl border border-white/[0.12] bg-[#0a0a0a]/95 backdrop-blur-xl p-6"
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 className="text-xl font-bold tracking-tight mb-4">编辑实体</h3>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 12, padding: '8px 0', borderBottom: '2px solid #e2e8f0', fontSize: 12, color: '#64748b', fontWeight: 500 }}>
-            <div style={{ width: 150 }}>名称</div>
-            <div style={{ flex: 1 }}>父节点</div>
-            <div style={{ width: 80 }}></div>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-3 py-2 border-b-2 border-white/[0.12] text-xs text-white/40 uppercase tracking-widest">
+            <div className="w-[150px]">名称</div>
+            <div className="flex-1">父节点</div>
+            <div className="w-[80px]"></div>
           </div>
           {concepts.map(concept => {
             const state = editStates[concept.id]
@@ -127,25 +114,21 @@ export default function EntityListModal({ concepts, selectedId, onSave, onEditAt
             return (
               <div
                 key={concept.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '8px 12px',
-                  borderRadius: 6,
-                  border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                  background: isSelected ? '#eff6ff' : 'white'
-                }}
+                className={
+                  isSelected
+                    ? 'flex items-center gap-3 px-3 py-2 rounded-lg border-2 border-blue-400/40 bg-blue-400/[0.04]'
+                    : 'flex items-center gap-3 px-3 py-2 rounded-lg border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all duration-300'
+                }
               >
                 <input
                   value={state.name}
                   onChange={e => updateField(concept.id, 'name', e.target.value)}
-                  style={{ width: 150, padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 14 }}
+                  className={`${inputClass} w-[150px]`}
                 />
                 <select
                   value={state.parentId || ''}
                   onChange={e => updateField(concept.id, 'parentId', e.target.value || undefined)}
-                  style={{ flex: 1, padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 14 }}
+                  className={`${inputClass} flex-1`}
                 >
                   <option value="">无</option>
                   {concepts.filter(c => c.id !== concept.id).map(c => (
@@ -154,16 +137,7 @@ export default function EntityListModal({ concepts, selectedId, onSave, onEditAt
                 </select>
                 <button
                   onClick={() => onEditAttrs(concept)}
-                  style={{
-                    width: 80,
-                    padding: '6px 10px',
-                    background: '#2563eb',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 6,
-                    cursor: 'pointer',
-                    fontSize: 13
-                  }}
+                  className="w-[80px] px-2.5 py-1.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 transition-all duration-300"
                 >
                   编辑属性
                 </button>
@@ -172,33 +146,21 @@ export default function EntityListModal({ concepts, selectedId, onSave, onEditAt
           })}
         </div>
 
-        <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+        <div className="mt-4 flex gap-2">
           <button
             onClick={saveAll}
             disabled={!hasDirty || isSavingAll}
-            style={{
-              flex: 2,
-              padding: '10px 16px',
-              background: hasDirty && !isSavingAll ? '#2563eb' : '#93c5fd',
-              color: 'white',
-              border: 'none',
-              borderRadius: 6,
-              cursor: hasDirty && !isSavingAll ? 'pointer' : 'not-allowed',
-              fontSize: 14
-            }}
+            className={
+              hasDirty && !isSavingAll
+                ? 'flex-[2] px-4 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 transition-all duration-300'
+                : 'flex-[2] px-4 py-2.5 rounded-lg bg-white/30 text-white/60 text-sm font-medium cursor-not-allowed'
+            }
           >
             {isSavingAll ? '保存中...' : '保存全部'}
           </button>
           <button
             onClick={onClose}
-            style={{
-              flex: 1,
-              padding: '10px 16px',
-              background: 'white',
-              border: '1px solid #e2e8f0',
-              borderRadius: 6,
-              cursor: 'pointer'
-            }}
+            className="flex-1 px-4 py-2.5 rounded-lg border border-white/20 text-white/70 text-sm font-medium hover:bg-white/5 hover:border-white/30 transition-all duration-300"
           >
             关闭
           </button>

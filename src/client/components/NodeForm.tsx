@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Concept } from '../../types'
+import { Concept } from '../../../types'
 
 interface Props {
   concept: Concept | null
@@ -8,6 +8,11 @@ interface Props {
   onClose: () => void
   mode: 'create' | 'edit-node' | 'edit-attrs'
 }
+
+const inputClass =
+  'w-full px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white placeholder-white/30 outline-none transition-colors duration-200 focus:border-white/30 hover:border-white/[0.15]'
+
+const labelClass = 'block text-xs text-white/40 mb-1.5 uppercase tracking-widest'
 
 export default function NodeForm({ concept, concepts, onSave, onClose, mode }: Props) {
   const [name, setName] = useState('')
@@ -85,52 +90,36 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
   const canSubmit = isAttrsOnly ? attrsChanged : name.trim()
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 16,
-      boxSizing: 'border-box',
-      zIndex: 1100
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: 12,
-        padding: 24,
-        width: '100%',
-        maxWidth: 400,
-        maxHeight: '80vh',
-        overflow: 'auto',
-        boxSizing: 'border-box'
-      }}>
-        <h3 style={{ marginBottom: 16 }}>
+    <div
+      className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md max-h-[80vh] overflow-auto rounded-2xl border border-white/[0.12] bg-[#0a0a0a]/95 backdrop-blur-xl p-6"
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 className="text-xl font-bold tracking-tight mb-4">
           {mode === 'create' ? '新建节点' : mode === 'edit-attrs' ? '编辑属性' : '编辑节点'}
         </h3>
         <form onSubmit={handleSubmit}>
           {!isAttrsOnly && (
             <>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>名称 *</label>
+              <div className="mb-4">
+                <label className={labelClass}>名称 *</label>
                 <input
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="输入节点名称"
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                  className={inputClass}
                 />
               </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>父节点</label>
+              <div className="mb-4">
+                <label className={labelClass}>父节点</label>
                 <select
                   value={parentId || ''}
                   onChange={e => setParentId(e.target.value || undefined)}
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none' }}
+                  className={inputClass}
                 >
                   <option value="">无</option>
                   {concepts.filter(c => c.id !== concept?.id).map(c => (
@@ -142,46 +131,51 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
           )}
 
           {(isEditing || isAttrsOnly) && (
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>属性</label>
-              <div style={{ maxHeight: 100, overflow: 'auto', marginBottom: 8 }}>
+            <div className="mb-4">
+              <label className={labelClass}>属性</label>
+              <div className="max-h-[100px] overflow-auto mb-2">
                 {Object.keys(attrs).length === 0 ? (
-                  <div style={{ color: '#94a3b8', fontSize: 13, padding: '4px 0' }}>暂无属性</div>
+                  <div className="text-white/30 text-sm py-1">暂无属性</div>
                 ) : (
                   Object.entries(attrs).map(([key, value]) => (
-                    <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
-                      <span>{key}: {String(value)}</span>
-                      <button type="button" onClick={() => handleRemoveAttr(key)} style={{ color: '#ef4444' }}>×</button>
+                    <div
+                      key={key}
+                      className="flex justify-between py-1 border-b border-white/[0.06] text-sm text-white/70"
+                    >
+                      <span>{key}: {value as string}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttr(key)}
+                        className="text-red-400 hover:text-red-300 px-2"
+                      >×</button>
                     </div>
                   ))
                 )}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 8 }}>
+              <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
                 <input
                   placeholder="键"
                   value={attrKey}
                   onChange={e => setAttrKey(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), canAddAttr && handleAddAttr())}
-                  style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s', width: '100%' }}
+                  className={inputClass}
                 />
                 <input
                   placeholder="值"
                   value={attrValue}
                   onChange={e => setAttrValue(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), canAddAttr && handleAddAttr())}
-                  style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s', width: '100%' }}
+                  className={inputClass}
                 />
                 <button
                   type="button"
                   onClick={handleAddAttr}
                   disabled={!canAddAttr}
-                  style={{
-                    padding: '8px 16px',
-                    background: canAddAttr ? '#e2e8f0' : '#f1f5f9',
-                    borderRadius: 6,
-                    cursor: canAddAttr ? 'pointer' : 'not-allowed',
-                    color: canAddAttr ? '#1e293b' : '#94a3b8'
-                  }}
+                  className={
+                    canAddAttr
+                      ? 'px-4 py-2 rounded-lg bg-white/[0.06] text-white hover:bg-white/10 transition-colors duration-200 text-sm'
+                      : 'px-4 py-2 rounded-lg bg-white/[0.02] text-white/30 cursor-not-allowed text-sm'
+                  }
                 >
                   +
                 </button>
@@ -189,38 +183,27 @@ export default function NodeForm({ concept, concepts, onSave, onClose, mode }: P
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              style={{
-                padding: '10px 16px',
-                background: canSubmit && !isSubmitting ? '#2563eb' : '#93c5fd',
-                color: 'white',
-                border: 'none',
-                borderRadius: 6,
-                cursor: canSubmit && !isSubmitting ? 'pointer' : 'not-allowed',
-                width: '100%'
-              }}
+              className={
+                canSubmit && !isSubmitting
+                  ? 'px-4 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 transition-all duration-300'
+                  : 'px-4 py-2.5 rounded-lg bg-white/30 text-white/60 text-sm font-medium cursor-not-allowed'
+              }
             >
               {isSubmitting ? '保存中...' : '保存'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: '10px 16px',
-                background: 'white',
-                border: '1px solid #e2e8f0',
-                borderRadius: 6,
-                cursor: 'pointer',
-                width: '100%'
-              }}
+              className="px-4 py-2.5 rounded-lg border border-white/20 text-white/70 text-sm font-medium hover:bg-white/5 hover:border-white/30 transition-all duration-300"
             >
               取消
             </button>
           </div>
-          <div style={{ marginTop: 12, fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+          <div className="mt-3 text-xs text-white/30 text-center">
             Enter 提交 · Esc 取消
           </div>
         </form>

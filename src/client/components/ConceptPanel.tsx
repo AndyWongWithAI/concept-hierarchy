@@ -1,4 +1,4 @@
-import { Concept } from '../../types'
+import { Concept } from '../../../types'
 
 interface Props {
   concept: Concept | undefined
@@ -10,15 +10,7 @@ interface Props {
 export default function ConceptPanel({ concept, concepts, onOpenEntityList, onDelete }: Props) {
   if (!concept) {
     return (
-      <div style={{
-        width: 280,
-        flexShrink: 0,
-        borderLeft: '1px solid #e2e8f0',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#94a3b8'
-      }}>
+      <div className="w-[280px] shrink-0 border-l border-white/[0.06] flex items-center justify-center text-white/30 text-sm">
         点击节点查看属性
       </div>
     )
@@ -29,89 +21,64 @@ export default function ConceptPanel({ concept, concepts, onOpenEntityList, onDe
     : null
 
   return (
-    <div style={{
-      width: 280,
-      flexShrink: 0,
-      borderLeft: '1px solid #e2e8f0',
-      padding: 24,
-      overflow: 'auto'
-    }}>
-      <h2 style={{ fontSize: 20, marginBottom: 16 }}>{concept.name}</h2>
+    <div className="w-[280px] shrink-0 border-l border-white/[0.06] p-6 overflow-auto">
+      <h2 className="text-2xl font-bold tracking-tight mb-4">{concept.name}</h2>
 
       {parentName && (
-        <div style={{ marginBottom: 16 }}>
-          <span style={{ color: '#64748b', fontSize: 12 }}>父节点</span>
-          <div style={{ color: '#2563eb' }}>{parentName}</div>
+        <div className="mb-6">
+          <div className="text-xs text-white/40 mb-1 uppercase tracking-widest">父节点</div>
+          <div className="text-blue-400 text-sm">{parentName}</div>
         </div>
       )}
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>继承属性</div>
+      <div className="mb-6">
+        <div className="text-xs text-white/40 mb-2 uppercase tracking-widest">继承属性</div>
         {Object.keys(concept.inheritedAttrs || {}).length === 0 ? (
-          <div style={{ color: '#94a3b8', fontSize: 14 }}>无</div>
+          <div className="text-white/30 text-sm">无</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div className="flex flex-col gap-1">
             {Object.entries(concept.inheritedAttrs).map(([key, info]) => (
-              <div key={key} style={{
-                fontSize: 14,
-                borderBottom: '1px dashed #cbd5e1',
-                padding: '4px 0'
-              }}>
-                <span style={{ color: '#94a3b8' }}>{key}: </span>
-                <span style={{ color: '#64748b' }}>{String((info as { value: unknown }).value)}</span>
-                <span style={{ color: '#94a3b8', fontSize: 12 }}> (来自 {(info as { from: string }).from})</span>
+              <div
+                key={key}
+                className="text-sm py-1 border-b border-dashed border-white/[0.15]"
+              >
+                <span className="text-white/50">{key}: </span>
+                <span className="text-white/60">{(info as { value: unknown }).value as string}</span>
+                <span className="text-white/30 text-xs"> (来自 {(info as { from: string }).from})</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>自身属性</div>
+      <div className="mb-6">
+        <div className="text-xs text-white/40 mb-2 uppercase tracking-widest">自身属性</div>
         {Object.keys(concept.ownAttrs || {}).length === 0 ? (
-          <div style={{ color: '#94a3b8', fontSize: 14 }}>无</div>
+          <div className="text-white/30 text-sm">无</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div className="flex flex-col gap-1">
             {Object.entries(concept.ownAttrs).map(([key, value]) => (
-              <div key={key} style={{
-                color: '#1e293b',
-                fontSize: 14,
-                borderBottom: '1px solid #e2e8f0',
-                padding: '4px 0'
-              }}>
-                {key}: {String(value)}
+              <div
+                key={key}
+                className="text-sm text-white py-1 border-b border-white/[0.12]"
+              >
+                {key}: {value as string}
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="flex gap-2">
         <button
           onClick={onOpenEntityList}
-          style={{
-            flex: 1,
-            padding: '8px 16px',
-            background: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer'
-          }}
+          className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium bg-white text-black hover:bg-white/90 hover:shadow-lg hover:shadow-white/20 transition-all duration-300"
         >
           编辑实体
         </button>
         <button
           onClick={() => onDelete(concept.id)}
-          style={{
-            flex: 1,
-            padding: '8px 16px',
-            background: 'white',
-            color: '#ef4444',
-            border: '1px solid #ef4444',
-            borderRadius: 6,
-            cursor: 'pointer'
-          }}
+          className="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium border border-red-400/40 text-red-400 hover:bg-red-400/10 hover:border-red-400/60 transition-all duration-300"
         >
           删除
         </button>
