@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { prisma } from './db'
+import { prisma } from './db.js'
 
 interface ConceptInput {
   name: string

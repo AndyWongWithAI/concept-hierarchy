@@ -9,7 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "db:push": "prisma db push",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "build:server": "tsc -p tsconfig.server.json",
+    "start": "node dist/server/index.js"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",
@@ -22,6 +24,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/node": "^25.9.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
